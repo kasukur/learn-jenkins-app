@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         NETLIFY_SITE_ID  = 'e9135f10-cc24-42dd-afdd-db65db45a279'
+        NETLIFY_AUTH_TOKEN = 'Sri-Netlify'
     }
 
     stages {
