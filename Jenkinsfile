@@ -3,11 +3,10 @@ pipeline {
 
     environment {
         NETLIFY_SITE_ID  = 'e9135f10-cc24-42dd-afdd-db65db45a279'
-        NETLIFY_AUTH_TOKEN = 'Sri2'
+        NETLIFY_AUTH_TOKEN = credentials('Sri2') // Use secure credentials store
     }
 
     stages {
-
         stage('Build') {
             agent {
                 docker {
@@ -36,10 +35,8 @@ pipeline {
                             reuseNode true
                         }
                     }
-
                     steps {
                         sh '''
-                            #test -f build/index.html
                             npm test
                         '''
                     }
@@ -57,19 +54,24 @@ pipeline {
                             reuseNode true
                         }
                     }
-
                     steps {
                         sh '''
                             npm install serve
                             node_modules/.bin/serve -s build &
                             sleep 10
-                            npx playwright test  --reporter=html
+                            npx playwright test --reporter=html
                         '''
                     }
-
                     post {
                         always {
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                            publishHTML([
+                                allowMissing: false, 
+                                alwaysLinkToLastBuild: false, 
+                                keepAll: false, 
+                                reportDir: 'playwright-report', 
+                                reportFiles: 'index.html', 
+                                reportName: 'Playwright HTML Report'
+                            ])
                         }
                     }
                 }
@@ -88,7 +90,8 @@ pipeline {
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify status
+                    node_modules/.bin/netlify status || true # Avoid failing the pipeline due to status command
+                    node_modules/.bin/netlify deploy --dir=build --prod --auth=$NETLIFY_AUTH_TOKEN
                 '''
             }
         }
