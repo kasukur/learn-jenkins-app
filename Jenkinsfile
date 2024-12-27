@@ -39,6 +39,7 @@ pipeline {
                     post {
                         always {
                             junit 'jest-results/junit.xml'
+                        }
                     }
                 }
 
@@ -74,6 +75,7 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy') {
             agent {
                 docker {
